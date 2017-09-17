@@ -48,13 +48,19 @@ These should would work on any Unix based OS, or the general ideas would work wi
    Note that this must be run as super user to show extra details about the addresses. [Here's an explanation of the "/24"](https://serverfault.com/questions/270005/what-is-the-slash-after-the-ip).
 
 
-8. SSH into the PI - your Pi's IP address is probably different, and may change as we haven't set it to be static.
+8. SSH into the Pi - your Pi's IP address is probably different, and may change as we haven't set it to be static.
    ```
    ssh pi@192.168.0.4
    ```
    The default Raspberry Pi password is "raspberry".
 
 
+9. SFTP into the Pi by entering this into Thunar's address bar (or however with your SFTP client of choice).
+   ```
+   sftp://pi@192.168.0.4/
+   ```
+
 
 #### TODO:
-Instructions for setting up the PiCon Zero. For now [the instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
+ - Instructions for setting up the PiCon Zero. For now [the instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
+ - Tips on using Atom to write code on the PC then copy to and run it on the Pi with a single keyboard shortcut.

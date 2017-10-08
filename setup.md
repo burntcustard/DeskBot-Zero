@@ -2,6 +2,8 @@ Work in progress instructions for setting up and using the robot via an external
 
 These should would work on any Unix based OS, or the general ideas would work with a Windows PC.
 
+### Headless Raspberry Pi Zero setup
+
 1. Download [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) and use [Etcher](https://etcher.io/) to burn it to microSD card.
 
 
@@ -50,17 +52,20 @@ These should would work on any Unix based OS, or the general ideas would work wi
 
 8. SSH into the Pi - your Pi's IP address is probably different, and may change as we haven't set it to be static.
    ```
-   ssh pi@192.168.0.4
+   ssh pi@192.168.1.4
    ```
    The default Raspberry Pi password is "raspberry".
 
 
 9. SFTP into the Pi by entering this into Thunar's address bar (or however with your SFTP client of choice).
    ```
-   sftp://pi@192.168.0.4/
+   sftp://pi@192.168.1.4/
    ```
+### Picon Zero setup - TODO
+For now [the instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
+ 
+### Installing OpenCV 
+Mostly from https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-raspberry-pi-zero/
 
-
-#### TODO:
- - Instructions for setting up the PiCon Zero. For now [the instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
+#### Other TODO:
  - Tips on using Atom to write code on the PC then copy to and run it on the Pi with a single keyboard shortcut.

@@ -1,6 +1,6 @@
-Work in progress instructions for setting up and using the robot via an external PC, via a microSD card reader and then WiFi.
+Work in progress instructions for setting up and using the robot via an external PC with a microSD card reader and WiFi.
 
-These should would work on any Unix based OS, or the general ideas would work with a Windows PC.
+These are written to work on any Unix based OS, but the general ideas would work with a Windows PC.
 
 ### Headless Raspberry Pi Zero setup
 
@@ -23,6 +23,7 @@ These should would work on any Unix based OS, or the general ideas would work wi
    $ nano wpa_supplicant.conf
    ```
    In the file, put the following, edited to the appropriate country and WiFi details:
+   TODO: Figure out how to include multiple networks. Swapping between home and mobile WiFi is a pain!
    ```
    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
    update_config=1
@@ -55,10 +56,11 @@ These should would work on any Unix based OS, or the general ideas would work wi
    sftp://pi@192.168.1.4/
    ```
 ### Picon Zero setup - TODO
-For now [the instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
+For now [the 4tronix instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
  
-### Installing OpenCV - This takes a long time!
-Mostly from https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-raspberry-pi-zero/
+### Compiling & installing OpenCV on the Raspberry Pi
+This takes a long time! Pre-built packages for the Pi Zero seem rare and/or outdated, but mine could be linked to from here rather than having this full tutorial. TODO: Check for any licensing issues etc.
+Mostly copied from this guide https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-raspberry-pi-zero/
 1. Install dev tools:
    ```
    $ sudo apt-get install build-essential cmake pkg-config
@@ -81,7 +83,7 @@ Mostly from https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-r
    ```
    
 5. Install Python 2.7 headers so we can compile OpenCV + Python bindings:
-   - Note: Python 2 support is ending in 2020. Switching to Python 3 could be a good idea.
+   Note: Python 2 support is ending in 2020. Switching to Python 3 could be a good idea.
    ```
    $ sudo apt-get install python2.7-dev
    ```
@@ -110,42 +112,43 @@ Mostly from https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-r
    ```
    
 10. Install NumPy (could take a while) (sudo required?):
-   ```
-   $ sudo pip install numpy
-   ```
+    ```
+    $ sudo pip install numpy
+    ```
    
 11. Setup OpenCV build using CMake:
-   ```
-   $ cd ~/opencv-3.3.0/
-   $ mkdir build
-   $ cd build
-   $ cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    ```
+    $ cd ~/opencv-3.3.0/
+    $ mkdir build
+    $ cd build
+    $ cmake -D CMAKE_BUILD_TYPE=RELEASE \
        -D CMAKE_INSTALL_PREFIX=/usr/local \
        -D INSTALL_C_EXAMPLES=ON \
        -D INSTALL_PYTHON_EXAMPLES=ON \
        -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.3.0/modules \
        -D BUILD_EXAMPLES=ON ..
-   ```
+    ```
 
 12. Run make to start the compilation process. This will take MANY hours. Go sleep.
-   ```
-   make
-   ```
+    ```
+    make
+    ```
    
 13. Assuming compiling worked, install it:
-   ```
-   $ sudo make install
-   $ sudo ldconfig
-   ```
+    ```
+    $ sudo make install
+    $ sudo ldconfig
+    ```
    
 14. Check if install worked:
-   ```
-   $ python
-   >>> import cv2
-   >>> cv2.__version__
-   ```   
+    ```
+    $ python
+    >>> import cv2
+    >>> cv2.__version__
+    ```   
 The directories opencv-3.0.0 and opencv_contrib-3.0.0 could be removed to save space, but then if something breaks re-compilation might be necessary.
    
 
 #### Other TODO:
- - Tips on using Atom to write code on the PC then copy to and run it on the Pi with a single keyboard shortcut.
+ - Tips on using Atom to write code on another PC then copy to and run it on the Pi with a single keyboard shortcut... Once I've figured this out myself.
+ - Running test code, and when it (or they) are done, the final robot program/s.

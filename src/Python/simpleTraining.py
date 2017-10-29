@@ -1,154 +1,188 @@
 #! /usr/bin/env python
+# coding: utf8
 #
 # Basic test of HC-SR04 ultrasonic sensor on Picon Zero
 
 import sys
 import time
+import math
 sys.path.insert(0, "../../lib/PiconZero/Python")
 
-from math import sqrt
-
 import piconzero as pz
-import hcsr04 as ultrasonic
 import panTilt as panTilt
+import infrared as ir
 
 pz.init()
-ultrasonic.init()
 panTilt.init()
+ir.init()
 
-moveSpeed =  20 # Movement speed 0-100
-lookSpeed =   0.3 # How much delay there is between moving panTilt
-robotHeight = 9 # Height of robot's sensors in cm
+moveSpeed   = 20 # Movement speed 0-100
+delay       = 0.1 # The delay between movements and stuff in seconds
+lookSpeed   = 0.2 # How much delay there is between moving panTilt
+robotHeight = 10 # Height of robot's sensors in cm
+
+
+def getEdgeAngle():
+    """
+    Slowly look down while checking for edge of desk
+    returns angle a
+          a
+         ⊿
+       b   c
+    """
+    ANGLE_OFFSET = 8  # How far off the angle measurements are in degrees
+    angle = 0
+    while angle < panTilt.get("tilt_range"):
+        angle += 1
+        panTilt.tilt(int(angle))
+        deskDetected = ir.readWithDelay()
+        # print "Angle:", angle + ANGLE_OFFSET, ", ir reading:", deskDetected
+        if deskDetected > 200 or angle == panTilt.get("tilt_range"):
+            # print "-----------------------"
+            break  # Break out of looking downwards loop
+    panTilt.up() # Look up again
+    return 90 - angle - ANGLE_OFFSET
 
 
 def getEdgeDistance():
-    distances = []
-  # Slowly look down while getting distances
-    for i in range(70): # Loop should be done number of degrees we're going to loop down times
-        panTilt.tilt(int(i))
-        time.sleep(0.2) # Take some time to get the distance
-        distance = int(ultrasonic.getDistance())
-        time.sleep(0.2) # Take some time to get the distance
-        if distance > 99:
-            distance = 99
-        print "getDistance: ", distance
-        distances.append(distance)
-        # If not on first loop, and the istance is more than 60cm less than the last distance
-        # measured (this will need A LOT if tweaking or rewriting to get accurate results!)
-        if i > 0 and distance < distances[i-1] - 40:
-            hypotenuse = distance
-            break
-    time.sleep(1)
-    panTilt.up() # Look up again
-    return int(sqrt(distance * distance - robotHeight * robotHeight))
+    """
+    Returns the distance to a detected edge in cm
+    """
+    '''
+
+          a
+         ⊿
+       b   c
+
+    hypotenuse
+              ⊿ adjacent
+          opposite
+
+    tan(a) = opposite/adjacent
+    adjacent * tan(a) = opposite
+    '''
+
+    # A multiplier to take into account the larger ir dot
+    # observed when further away from as surface (think torch
+    # beam onto a wall getting larger as it gets further away).
+    # TODO: Figure out a better to do this.
+    PWR = 1.1
+
+    edgeDistance = robotHeight * math.tan(math.radians(getEdgeAngle()))
+    if edgeDistance > 2:
+        #print "edgeDistance of", edgeDistance
+        edgeDistance **= PWR
+        #print "multiplied to", edgeDistance
+    # print "Distance to edge: ", edgeDistance
+
+    return edgeDistance
 
 
-def nextToEdge():
-  
-    isNextToEdge = True
-  
-    for i in range(71): # Loop should be done number of degrees we're going to loop down times (0-70)
-    
-        panTilt.tilt(int(i))
-        
-        time.sleep(0.01)
-        
-        if i > 65: # Only do distance measuring for the last 5 degrees
+def getDistances():
+    """ Look around, return left, forward, right distances to edge of desk """
 
-            # Check distance twice just to be sure, with some delay before
-            for i in range(2):
-                time.sleep(0.05) # There's a bit of delay in the rest of the loop too.
-                distance = int(ultrasonic.getDistance())
-                print "Ultrasonic reading:", distance
-                if distance < 20: # Robot height * 2ish
-                    isNextToEdge = False
+    panTilt.pan(-45)
+    time.sleep(delay)
+    left = getEdgeDistance()
 
-    # Slowly tilt back up
-    for i in range(70, 0, -1):
-        panTilt.tilt(int(i))
-        time.sleep(0.01)
+    panTilt.pan()
+    time.sleep(delay)
+    forward = getEdgeDistance()
 
-    return isNextToEdge
-  
+    panTilt.pan(45)
+    time.sleep(delay)
+    right = getEdgeDistance()
+
+    panTilt.pan()
+
+    return left, forward, right
+
+
+def getDistanceAndRotation():
+    """ Calculate the distance and rotation to the edge of the desk """
+
+    # Maths help from: http://xaktly.com/MathNonRightTrig.html
+    # - Specfically the law of cosines, but at least one of their
+    #   examples is wrong, but methods are correct... sigh.
+    #
+    # For triangle with forward length, shortest of
+    # left and right length, and desk edge as sides...
+    #
+    # f = forward distance length
+    # l = left distance length
+    # r = right distance length
+    # e = length of desk edge between left and right views
+    # s = shortest of left and right distance length
+    # v = "view" angle of how much robot looks left or right
+    # g = angle between d and f
+    # d = distance between robot and edge of desk
+    # a = angle between the way the robot is facing and edge of desk
+    #     (i.e. if the robot is facing directly towards edge it's 0)
+    #     (in radians or degrees?..)
+    #
+    # e² = f² + s² - 2 * f * s * cos(v)
+    # g = sin⁻¹ * (s * sin(v) / e)
+    # d = f * sin(g)
+    # a = 180 - 90 - g (minus or positive depending on if s is left or right)
+
+    l, f, r = getDistances()
+
+    # Figure out if the edge of the desk is more to the right or left
+    # s = min(l, r) <-- Used to use this, but need a -/+ as well.
+    if l < r:
+        s = l
+        direction = -1
+    else:
+        s = r
+        direction = 1
+
+    cosV = math.cos(math.radians(45))
+    sinV = math.sin(math.radians(45))
+
+    e = f**2 + s**2 - 2 * f * s * cosV
+    e = math.sqrt(e)
+    g = math.degrees(math.asin(s * sinV / e))
+    d = f * math.sin(math.radians(g))  # Switching degrees/radians f'debugging
+    a = (90 - g) * direction
+    '''
+    # Debug stuff
+    print "f =", f
+    print "l =", l
+    print "r =", r
+    print "e =", e
+    print "s =", s
+    print "v =", 45
+    print "g =", g
+    print "d =", d
+    print "a =", a
+    '''
+    return int(d), int(a)
+
 
 try:
     while True:
-        
-        isNextToEdgeF = False
-        isNextToEdgeL = False
-        isNextToEdgeR = False
 
-        # Wait, forward, wait, for 0.5 seconds each
-        # TODO: "move.forward(speed, time)", or by distance function
-        time.sleep(0.5)
+        time.sleep(delay)
+
+        # Look around
+        distance, rotation = getDistanceAndRotation()
+
+        print "Distance to edge:", distance, "cm"
+        print "Rotation to edge:", rotation, "degrees"
+
+        # Wait, forward, wait, for 0.5 seconds
+        time.sleep(delay)
         pz.forward(moveSpeed)
         time.sleep(0.5)
         pz.stop()
-        time.sleep(0.3)
 
-        # Look around
-        time.sleep(lookSpeed)
-        if nextToEdge():
-            print "Looking down over the edge!"
-            isNextToEdgeF = True
-        else:
-            print "Looking down at desk."
-        time.sleep(lookSpeed)
 
-        panTilt.pan(45)
-        time.sleep(lookSpeed)
-        if nextToEdge():
-            print "Looking down over the edge!"
-            isNextToEdgeL = True
-        else:
-            print "Looking down at desk."
-        time.sleep(lookSpeed)
-
-        panTilt.pan(-45)
-        time.sleep(lookSpeed)
-        if nextToEdge():
-            print "Looking down over the edge!"
-            isNextToEdgeR = True
-        else:
-            print "Looking down at desk."
-        time.sleep(lookSpeed)
-
-        panTilt.center()
-        
-        if isNextToEdgeF or isNextToEdgeR or isNextToEdgeL:
-            
-            if isNextToEdgeF:
-                # If looking straight over we have to move back further!
-                pz.reverse(moveSpeed)
-                time.sleep(2)
-                pz.stop()
-                time.sleep(0.3)
-            else:
-                pz.reverse(moveSpeed)
-                time.sleep(1)
-                pz.stop()
-                time.sleep(0.3)
-
-            # This is backwards right now because motors are wired the wrong way.
-            # TODO: Make easily flip-able with a boolean variable somewhere.
-            if isNextToEdgeL:
-                pz.spinLeft(moveSpeed)
-            else:
-                pz.spinRight(moveSpeed)
-            # Turn for x seconds (TODO: Rewrite things to work in degrees or radians?)
-            time.sleep(1.5)
-            pz.stop()
-            
-
-    
 except KeyboardInterrupt:
     print
-  
-  
+
+
 finally:
-    time.sleep(1)
-    ultrasonic.cleanup()
     panTilt.cleanup()
-    time.sleep(1)
+    time.sleep(0.5)
     pz.cleanup() # This might actually clean up everything else too?
-    time.sleep(1)
+    time.sleep(0.5)

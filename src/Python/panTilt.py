@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 #======================================================================
 #
 # Python Module to control a pan and tilt kit.
@@ -6,6 +8,8 @@
 # Created by John Evans, Oct 2017
 #
 # "TLT" is used rather than "TILT" only to match character count.
+#
+# All input values are in (approximately) in degrees.
 #
 # This is currently setup to imply that "facing forwards" is when the
 # panning servo is centered and the tilt servo is (almost) fully
@@ -44,7 +48,7 @@ PAN_MAX = DEFAULT_VAL + PAN_RANGE  # 160
 
 def init():
     """Initialize and center the servos."""
-    pz.init()
+    # pz.init()
     # Set output mode to Servo
     pz.setOutputConfig(PAN_PIN, 2)
     pz.setOutputConfig(TLT_PIN, 2)
@@ -132,3 +136,8 @@ def cleanup():
     center()
     time.sleep(0.1)
     pz.cleanup()
+
+
+def get(request):
+    if request == "tilt_range":
+        return TLT_RANGE

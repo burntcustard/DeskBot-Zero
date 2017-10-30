@@ -1,0 +1,16 @@
+ cd ~/opencv-3.3.0/
+ mkdir build
+ cd build
+ cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib-3.3.0/modules \
+    -D PYTHON_EXECUTABLE=/usr/bin/python \
+    -D PYTHON_INCLUDE_DIR=/usr/include/python2.7 \
+    -D PYTHON_INCLUDE_DIR2=/usr/include/x86_64-linux-gnu/python2.7 \
+    -D PYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython2.7.so \
+    -D PYTHON_NUMPY_INCLUDE_DIRS=/usr/lib/python2.7/dist-packages/numpy/core/include/ \
+    -D BUILD_EXAMPLES=ON ..
+
+

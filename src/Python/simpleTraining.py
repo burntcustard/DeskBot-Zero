@@ -6,6 +6,7 @@
 import sys
 import time
 import math
+import random
 sys.path.insert(0, "../../lib/PiconZero/Python")
 
 import piconzero as pz
@@ -20,6 +21,7 @@ moveSpeed   = 20 # Movement speed 0-100
 delay       = 0.1 # The delay between movements and stuff in seconds
 lookSpeed   = 0.2 # How much delay there is between moving panTilt
 robotHeight = 10 # Height of robot's sensors in cm
+DEBUG = True
 
 
 def getEdgeAngle():
@@ -114,7 +116,7 @@ def getDistanceAndRotation():
     # e = length of desk edge between left and right views
     # s = shortest of left and right distance length
     # v = "view" angle of how much robot looks left or right
-    # g = angle between d and f
+    # g = angle between f and e
     # d = distance between robot and edge of desk
     # a = angle between the way the robot is facing and edge of desk
     #     (i.e. if the robot is facing directly towards edge it's 0)
@@ -125,6 +127,7 @@ def getDistanceAndRotation():
     # d = f * sin(g)
     # a = 180 - 90 - g (minus or positive depending on if s is left or right)
 
+    # Move the sensor module or "robot head" around to measure distances:
     l, f, r = getDistances()
 
     # Figure out if the edge of the desk is more to the right or left
@@ -159,22 +162,56 @@ def getDistanceAndRotation():
     return int(d), int(a)
 
 
+def turn(speed = 40, direction = random.choice([-1, 1]), duration = 1):
+    """ Turn the robot at x speed in y direction for z duration in seconds """
+
+    if DEBUG == True:
+        directionStr = "right" if direction == 1 else "left"
+        print "Turning", directionStr, "for", duration, "seconds"
+
+    pz.setMotor(0, -speed * direction)
+    pz.setMotor(1,  speed * direction)
+    time.sleep(duration)
+    pz.stop()
+
+def move(speed = 40, direction = 1, duration = 1):
+    """ Move the robot at x speed in y direction for z duration in seconds """
+
+    if DEBUG == True:
+        directionStr = "forward" if direction == 1 else "backwards"
+        print "Moving", directionStr, "for", duration, "seconds"
+
+    pz.setMotor(0, speed * direction)
+    pz.setMotor(1, speed * direction)
+    time.sleep(duration)
+    pz.stop()
+
+
 try:
     while True:
 
         time.sleep(delay)
 
         # Look around
-        distance, rotation = getDistanceAndRotation()
+        distanceToEdge, rotationToEdge = getDistanceAndRotation()
 
-        print "Distance to edge:", distance, "cm"
-        print "Rotation to edge:", rotation, "degrees"
+        print "Distance to edge:", distanceToEdge, "cm"
+        print "Rotation to edge:", rotationToEdge, "degrees"
 
-        # Wait, forward, wait, for 0.5 seconds
-        time.sleep(delay)
-        pz.forward(moveSpeed)
-        time.sleep(0.5)
-        pz.stop()
+        if 5 <= distanceToEdge <= 10:
+            if rotationToEdge < -30:
+                turn(moveSpeed, -1)  # Turn left
+            elif rotationToEdge > 30:
+                turn(moveSpeed,  1)  # Turn right
+            else:
+                turn(moveSpeed)      # Turn randomly either left or right
+
+        elif distanceToEdge < 5:
+            print "Dangerously close to edge!"
+            move(moveSpeed, -1)
+            turn(moveSpeed)
+        else:
+            move(moveSpeed)
 
 
 except KeyboardInterrupt:

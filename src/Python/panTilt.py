@@ -27,8 +27,8 @@ import piconzero as pz, time
 
 
 # Define which pins are the pan and tilt servos
-PAN_PIN = 1
-TLT_PIN = 0
+PAN_PIN = 4
+TLT_PIN = 5
 
 # Servo default value
 # If a different initial orientation is required this may need to be
@@ -136,8 +136,3 @@ def cleanup():
     center()
     time.sleep(0.1)
     pz.cleanup()
-
-
-def get(request):
-    if request == "tilt_range":
-        return TLT_RANGE

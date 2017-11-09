@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 # coding: utf8
 #
-# Basic test of HC-SR04 ultrasonic sensor on Picon Zero
+# Simplifies moving the robot forwards, backwards, turning
+# in a set direction, or turning randomly left or right
 
 import sys
 import time

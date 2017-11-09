@@ -39,6 +39,10 @@ def analogRead():
     return pz.readInput(IR_PIN)
 
 
+def read():
+    return analogRead()
+
+
 def continuousRead(): 
     try:
         while True:
@@ -51,7 +55,7 @@ def continuousRead():
         pz.cleanup()
 
 
-def read():
+def digitalRead():
     # True if > than magic number (indicating ~80% reflectivity ~30cm away)
     if pz.readInput(IR_PIN) > 200:
         return True
@@ -61,7 +65,7 @@ def read():
 
 def readWithDelay(delayTime = 0.01):
     time.sleep(delayTime)
-    ir = analogRead()
+    ir = read()
     time.sleep(delayTime)
     return ir
 

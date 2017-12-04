@@ -20,8 +20,14 @@ def init():
     print "Initialized motors"
 
 
-def turn(speed = 40, direction = random.choice([-1, 1]), duration = 0.5):
+def turn(speed = 40, direction = 0, duration = 0.5):
     """ Turn the robot at x speed in y direction for z duration in seconds """
+
+    # If no direction specified, pick left (-1) or right (1) randomly:
+    if not direction:
+        direction = random.choice([-1, 1])
+
+    print direction
 
     if DEBUG is True:
         directionStr = "right" if direction == 1 else "left"
@@ -49,11 +55,12 @@ def move(speed = 40, direction = 1, duration = 0.5):
 def turnAwayFrom(speed = 40, rotation = 0):
     """ Turn robot away from a hazard """
 
-    if rotation   < -30: # If hazard is to the left:
+    if rotation   < -15: # If hazard is to the left:
         turn(speed,  1)  # Turn right
-    elif rotation > 30:  # If hazard is to the right:
+    elif rotation > 15:  # If hazard is to the right:
         turn(speed, -1)  # Turn left
     else:                # If hazard is in front (ish):
+        print "Trying to turn randomly, picked..."
         turn(speed)      # Turn randomly either left or right
 
 

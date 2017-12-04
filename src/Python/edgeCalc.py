@@ -40,22 +40,44 @@ def getDistanceAndRotationToEdge(l, f, r):
     # a = 180 - 90 - g (minus or positive depending on if s is left or right)
 
     # Figure out if the edge of the desk is more to the right or left
-    # s = min(l, r) <-- Used to use this, but need a -/+ as well.
-    if r is None and l is None:
-        print "ERROR: Tried to do edge calcs without right or left distances."
+    # s = min(l, r) <-- Used to use this, but need additional things.
+
+    #  r | l | s
+    #  x | x | ?
+    #  1 | 1 | ?     Logic table for _r_ight, _l_eft, and output
+    #  0 | 0 | ?     _s_hortest distances from robot to desk edge
+    #  x | 0 | l
+    #  1 | x | r     x = None
+    #  0 | 1 | r     1 = arbitrary high-ish value
+    #  x | 1 | l     0 = arbitrary low-ish value
+    #  1 | 0 | l
+    #  0 | x | r
+
+    # Distance to right and left are missing or identical?
+    if r is l:
+        if r is None:
+            if DEBUG:
+                print "INFO: Skipping edge calcs because of missing distances."
+            return f, 0
+        else:
+            if DEBUG:
+                print "INFO: Skipping edge calcs because of identical distances."
+            # This is unlikely-ish because l, f, r are floats...
+            #
+            #  r < f       r > f
+            #    ◆  |  or    ◼
+            #  ____➘|      __🠛__
+            #
+            return min(r, f), 0
+
+    # Figure out if _l_eft or _r_ight is the shorter distance
     else:
-        # If there's no _r_ight distance or _l_eft distance is _s_horter:
-        if r is None or l < r:
-            s = l
-            direction = -1
-        # If there's no _l_eft distance or _r_ight distance is _s_horter:
-        elif l is None or r < l:
+        if r is not None and (l < r):  # Python3 fix?... (l is None or l < r)
             s = r
             direction = 1
-        # Else _l_eft and _r_ight distances are equal, just use _l_eft:
         else:
             s = l
-            direction = 0
+            direction = -1
 
     cosV = math.cos(math.radians(45))
     sinV = math.sin(math.radians(45))
@@ -78,7 +100,7 @@ def getDistanceAndRotationToEdge(l, f, r):
     print "a =", a
     '''
 
-    if DEBUG is True:
+    if DEBUG:
         print "Distance to edge:", int(d), "cm"
         print "Rotation to edge:", int(a), "degrees"
 

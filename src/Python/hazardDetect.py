@@ -142,6 +142,7 @@ def getHazardDistanceRotation():
     # Move the sensor module or "robot head" around and measure distances:
     wl, el, wf, ef, wr, er = getDistances()
 
+    # WALL DETECTION if wall detected in any direction
     if wl is not None or wf is not None or wr is not None:
         hzrdType = Hazard.wall
         # Distance and rotation to wall (ish). Order is important.
@@ -156,9 +157,13 @@ def getHazardDistanceRotation():
         elif wr is not None:
             distance, rotation = wr, 45
 
-    elif ef is not None and (el is not None or er is not None):
-        hzrdType = Hazard.edge
-        distance, rotation = edgeCalc.getDistanceAndRotationToEdge(el, ef, er)
+    # EDGE DETECTION if edge is deteced looking front, and left and/or right
+    if ef is not None and (el is not None or er is not None):
+        edgeDistance, edgeRotation = edgeCalc.getDistanceAndRotationToEdge(el, ef, er)
+        if hzrdType is Hazard.none or edgeDistance < distance:
+            hzrdType = Hazard.edge
+            distance = edgeDistance
+            rotation = edgeRotation
 
     # If the closest hazard is too far away, pretend it does't exist.
     if (distance is None) or (not 0 <= distance <= VIEW_RANGE):

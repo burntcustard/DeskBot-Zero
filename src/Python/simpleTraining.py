@@ -8,7 +8,8 @@
 import sys
 import time
 import math
-import random
+import random  #
+import os      # Maybe needed for creating/selecting folders to save images?
 sys.path.insert(0, "../../lib/PiconZero/Python")
 
 # Camera imports:
@@ -20,17 +21,22 @@ import cv2
 import piconzero as pz
 import panTilt as panTilt
 import infrared as ir
-import movement as robot
-import edgeCalc as edge
+import hcsr04 as hcsr04
+import movement as body
+import hazardDetect as head
 
 pz.init()
 panTilt.init()
 ir.init()
-robot.init()
+hcsr04.init()
+body.init()
 
-moveSpeed = 35  # Movement speed 0-100
-delay     = 0.1 # The delay between movements and stuff in seconds
-res       = 128 # Camera resolution (# x # pixels)
+moveSpeed = 35   # Movement speed 0-100
+delay     = 0.1  # The delay between movements and stuff in seconds
+res       = 128  # Camera resolution (# x # pixels)
+path      = "trainingImages/"  # Where images are saved
+DANGER_DISTANCE =  5 # If closer than this distance (cm), back up.
+TARGET_DISTANCE = 10 # If between DANGER and this distance (cm), rotate to move alongside/away.
 
 camera = PiCamera()
 camera.resolution = (res,res)
@@ -47,28 +53,33 @@ try:
         # Convert image to Blue Green Red format (that's what OpenCV likes)
         camera.capture(rawCapture, format="bgr")
 
-        # Look around
-        distanceToEdge, rotationToEdge = edge.getDistanceAndRotation()
+        # Look around. "h" refers to a potential hazard (desk edge, wall, etc.)
+        hType, distanceToH, rotationToH = head.getHazardDistanceRotation()
+
+        print str(hType.name), distanceToH, rotationToH
 
         # Save image with suitable filename
         img = rawCapture.array
-        imgName = 'd' + str(distanceToEdge) + 'r' + str(rotationToEdge) + ".png"
-        cv2.imwrite(imgName, img)
+        imgName = str(hType.name)
+        imgName += "-d" + str(distanceToH)
+        imgName += "-r" + str(rotationToH) + ".png"
+        cv2.imwrite(os.path.join(path, imgName), img)
+
+        # If there's no hazard in view range, or closest hazard is far away:
+        if hType is head.Hazard.none or distanceToH > TARGET_DISTANCE:
+            body.move(moveSpeed)
 
         # If the robot is close-ish to the desk edge:
-        if 4 <= distanceToEdge <= 8:
-            robot.turnAwayFromEdge(moveSpeed, rotationToEdge)
-            robot.move(moveSpeed)
+        elif DANGER_DISTANCE <= distanceToH <= TARGET_DISTANCE:
+            print "Close-ish to", str(hType)
+            body.turnAwayFrom(moveSpeed, rotationToH)
+            body.move(moveSpeed)
 
         # If the robot is TOO CLOSE to the desk edge:
-        elif distanceToEdge < 4:
-            print "Dangerously close to desk edge!"
-            robot.move(moveSpeed, -1)  # Back up a bit
-            robot.turnAwayFromEdge(moveSpeed, rotationToEdge)
-
-        # If the robot is far from the desk edge:
-        else:
-            robot.move(moveSpeed)
+        elif distanceToH < DANGER_DISTANCE:
+            print "Dangerously close to", str(hType) + "!"
+            body.move(moveSpeed, -1)  # Back up a bit
+            body.turnAwayFrom(moveSpeed, rotationToH)
 
 
 except KeyboardInterrupt:

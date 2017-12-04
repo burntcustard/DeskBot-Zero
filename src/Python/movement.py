@@ -11,7 +11,7 @@ sys.path.insert(0, "../../lib/PiconZero/Python")
 
 import piconzero as pz
 
-DEBUG = True
+DEBUG = False
 
 
 def init():
@@ -46,14 +46,14 @@ def move(speed = 40, direction = 1, duration = 0.5):
     pz.stop()
 
 
-def turnAwayFromEdge(speed = 40, rotation = 0):
-    """ Turn robot away from the desk edge """
+def turnAwayFrom(speed = 40, rotation = 0):
+    """ Turn robot away from a hazard """
 
-    if rotation   < -30: # If desk edge is to the left:
+    if rotation   < -30: # If hazard is to the left:
         turn(speed,  1)  # Turn right
-    elif rotation > 30:  # If desk edge is to the right:
+    elif rotation > 30:  # If hazard is to the right:
         turn(speed, -1)  # Turn left
-    else:                # If desk edge is in front (ish):
+    else:                # If hazard is in front (ish):
         turn(speed)      # Turn randomly either left or right
 
 

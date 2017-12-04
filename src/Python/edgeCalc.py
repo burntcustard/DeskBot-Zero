@@ -5,96 +5,14 @@
 # determine the distance and rotation to the edge of a desk
 
 import sys
-import time
 import math
 sys.path.insert(0, "../../lib/PiconZero/Python")
 
-import piconzero as pz
-import panTilt as panTilt
-import infrared as ir
 
-delay       = 0.1 # The delay between movements and stuff in seconds
-robotHeight = 10 # Height of robot's sensors in cm
-DEBUG = True
+DEBUG = False
 
 
-def getEdgeAngle():
-    """
-    Slowly look down while checking for edge of desk
-    returns angle a
-          a
-         ◿
-       b   c
-    """
-    ANGLE_OFFSET = 8  # How far off the angle measurements are in degrees
-    angle = 0
-    while angle < panTilt.TLT_RANGE:
-        angle += 1
-        panTilt.tilt(int(angle))
-        deskDetected = ir.readWithDelay()
-        # print "Angle:", angle + ANGLE_OFFSET, ", ir reading:", deskDetected
-        if deskDetected > 200 or angle == panTilt.TLT_RANGE:
-            # print "-----------------------"
-            break  # Break out of looking downwards loop
-    panTilt.up() # Look up again
-    return 90 - angle - ANGLE_OFFSET
-
-
-def getEdgeDistance():
-    """
-    Returns the distance to a detected edge in cm
-    """
-    '''
-
-          a
-         ◿
-       b   c
-
-    hypotenuse
-              ◿ adjacent
-          opposite
-
-    tan(a) = opposite/adjacent
-    adjacent * tan(a) = opposite
-    '''
-
-    # A multiplier to take into account the larger ir dot
-    # observed when further away from as surface (think torch
-    # beam onto a wall getting larger as it gets further away).
-    # TODO: Figure out a better way to do this.
-    PWR = 1.1
-
-    edgeDistance = robotHeight * math.tan(math.radians(getEdgeAngle()))
-    if edgeDistance > 2:
-        #print "edgeDistance of", edgeDistance
-        edgeDistance **= PWR
-        #print "multiplied to", edgeDistance
-    # print "Distance to edge: ", edgeDistance
-
-    return edgeDistance
-
-
-def getDistances():
-    """ Look around, return left, forward, right distances to edge of desk """
-
-    panTilt.pan(-45)
-    time.sleep(delay)
-    left = getEdgeDistance()
-
-    panTilt.pan()
-    time.sleep(delay)
-    forward = getEdgeDistance()
-
-    panTilt.pan(45)
-    time.sleep(delay)
-    right = getEdgeDistance()
-
-    panTilt.pan()
-
-    return left, forward, right
-
-
-def getDistanceAndRotation():
+def getDistanceAndRotationToEdge(l, f, r):
     """ Calculate the distance and rotation to the edge of the desk """
 
     # Maths help from: http://xaktly.com/MathNonRightTrig.html
@@ -121,17 +39,23 @@ def getDistanceAndRotation():
     # d = f * sin(g)
     # a = 180 - 90 - g (minus or positive depending on if s is left or right)
 
-    # Move the sensor module or "robot head" around to measure distances:
-    l, f, r = getDistances()
-
     # Figure out if the edge of the desk is more to the right or left
     # s = min(l, r) <-- Used to use this, but need a -/+ as well.
-    if l < r:
-        s = l
-        direction = -1
+    if r is None and l is None:
+        print "ERROR: Tried to do edge calcs without right or left distances."
     else:
-        s = r
-        direction = 1
+        # If there's no _r_ight distance or _l_eft distance is _s_horter:
+        if r is None or l < r:
+            s = l
+            direction = -1
+        # If there's no _l_eft distance or _r_ight distance is _s_horter:
+        elif l is None or r < l:
+            s = r
+            direction = 1
+        # Else _l_eft and _r_ight distances are equal, just use _l_eft:
+        else:
+            s = l
+            direction = 0
 
     cosV = math.cos(math.radians(45))
     sinV = math.sin(math.radians(45))

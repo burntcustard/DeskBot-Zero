@@ -2,15 +2,15 @@
 # Use arrow keys to move 2 servos on outputs 0 and 1 for Pan and Tilt
 # Use G and H to open and close the Gripper arm
 # Press Ctrl-C to stop
-#
 
-import sys
-sys.path.insert(0, "../../lib/PiconZero/Python")
-
-import piconzero as pz, time
 
 import tty
 import termios
+import sys
+sys.path.insert(0, "../../lib/PiconZero/Python")
+
+import piconzero as pz
+
 
 #======================================================================
 # Reading single character by forcing stdin to raw mode
@@ -59,7 +59,7 @@ pz.setOutputConfig(pan, 2)
 pz.setOutputConfig(tilt, 2)
 
 # Value to increase or decrease serve value by to rotate by 1 degrees (ish)
-degrees = 3;
+degrees = 3
 
 # Centre all servos
 defaultVal = tiltVal = panVal = 100

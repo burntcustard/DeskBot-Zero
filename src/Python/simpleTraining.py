@@ -7,8 +7,8 @@
 # Python imports:
 import sys
 import time
-import math
-import random  #
+#import math
+#import random
 import os      # Maybe needed for creating/selecting folders to save images?
 sys.path.insert(0, "../../lib/PiconZero/Python")
 
@@ -25,6 +25,7 @@ import hcsr04 as hcsr04
 import movement as body
 import hazardDetect as head
 
+
 pz.init()
 panTilt.init()
 ir.init()
@@ -35,8 +36,8 @@ moveSpeed = 35   # Movement speed 0-100
 delay     = 0.1  # The delay between movements and stuff in seconds
 res       = 128  # Camera resolution (# x # pixels)
 path      = "trainingImages/"  # Where images are saved
-DANGER_DISTANCE =  5 # If closer than this distance (cm), back up.
-TARGET_DISTANCE = 10 # If between DANGER and this distance (cm), rotate to move alongside/away.
+DANGER_DISTANCE =  5  # If closer than this distance (cm), back up.
+TARGET_DISTANCE = 10  # If between DANGER and this distance (cm), rotate to move alongside/away.
 
 camera = PiCamera()
 camera.resolution = (res,res)

@@ -19,11 +19,13 @@
 #======================================================================
 
 
+import time
+
 # Insert path to PiconZero library so modules can be imported
 import sys
 sys.path.insert(1, "../../lib/PiconZero/Python")
 
-import piconzero as pz, time
+import piconzero as pz
 
 
 # Define which pins are the pan and tilt servos

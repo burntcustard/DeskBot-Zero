@@ -4,12 +4,14 @@
 # Simplifies moving the robot forwards, backwards, turning
 # in a set direction, or turning randomly left or right
 
+
 import sys
 import time
 import random
 sys.path.insert(0, "../../lib/PiconZero/Python")
 
 import piconzero as pz
+
 
 DEBUG = False
 

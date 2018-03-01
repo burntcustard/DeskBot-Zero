@@ -1,0 +1,34 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+
+    "python.linting.pylintArgs": [
+
+        // We use CamelCase and occsasional 1-2 letter vars.
+        "--disable=invalid-name",
+
+        // We insert PiconZero location into sys.path just
+        // before importing it. Pylint doesn't like that.
+        "--disable=import-error",
+        "--disable=wrong-import-position",
+
+        // Pylint doesn't find OpenCV members(?)
+        "--disable=no-member",
+
+        // Pylint is having issues analysing enums.
+        // TODO: Revisit if/when project converted to Python3.
+        "--disable=too-few-public-methods",
+
+        // We're not going to document ~1 line functions, yet.
+        "--disable=missing-docstring",
+
+        // Google says: "Don't use spaces to vertically align tokens on
+        // consecutive lines, since it becomes a maintenance burden"
+        // - https://google.github.io/styleguide/pyguide.html?#Whitespace
+        // But we are okay with that burden to produce fancier code.
+        // We also use spaces in kwargs assignment for readability.
+        "--disable=bad-whitespace"
+
+    ]
+
+}

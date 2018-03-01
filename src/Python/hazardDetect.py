@@ -30,7 +30,7 @@ class Hazard(Enum):
 
     edge = 1
     wall = 2
-    crnr = 3  # CoRNeR wall (i.e. wall to left & right)
+    crnr = 3  # CoRNeR wall (i.e. wall to the left AND right)
     none = 0
 
 

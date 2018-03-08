@@ -19,7 +19,7 @@ import hcsr04
 import edgeCalc as edgeCalc
 
 DEBUG = True
-DELAY = 0.2      # The delay between movements and stuff in seconds.
+DELAY = 0.3      # The delay between movements and stuff in seconds.
 BOT_HEIGHT = 10  # Height of robot's sensor module in cm.
 VIEW_RANGE = 40  # Maximum range that the robot cares about hazards to, in cm.
 SENS_OFFSET = 4  # How far back from front of robot are the sensors, in cm.
@@ -27,7 +27,6 @@ SENS_OFFSET = 4  # How far back from front of robot are the sensors, in cm.
 
 class Hazard(Enum):
     """ A type of hazard that the robot may want to avoid (or no hazard) """
-
     edge = 1
     wall = 2
     crnr = 3  # CoRNeR wall (i.e. wall to the left AND right)
@@ -120,17 +119,15 @@ def getDistance(angle):
 def getDistances():
     """ Look around, return left, forward, right distances to stuff """
 
-    # w[direction] is "wall [direction]"
-    # e[direction] is "desk edge [direction]"
     # If there's a wall in the way then there's no edge that way (probably)
 
-    wl, el = getDistance(-45)  # Left
-    wf, ef = getDistance(  0)  # Forward
-    wr, er = getDistance( 45)  # Right
+    wallL, edgeL = getDistance(-45)  # Left
+    wallF, edgeF = getDistance(  0)  # Forward
+    wallR, edgeR = getDistance( 45)  # Right
 
     panTilt.pan()  # Recenter
 
-    return wl, el, wf, ef, wr, er
+    return wallL, edgeL, wallF, edgeF, wallR, edgeR
 
 
 def getHazardDistanceRotation():

@@ -6,6 +6,7 @@
 
 # Python imports:
 import sys
+import datetime
 import time
 #import math
 #import random
@@ -32,24 +33,43 @@ ir.init()
 hcsr04.init()
 body.init()
 
-moveSpeed = 35   # Movement speed 0-100
-delay     = 0.1  # The delay between movements and stuff in seconds
-res       = 128  # Camera resolution (# x # pixels)
-path      = "trainingImages/"  # Where images are saved
-DANGER_DISTANCE =  5  # If closer than this distance (cm), back up.
-TARGET_DISTANCE = 10  # If between DANGER and this distance (cm), rotate to move alongside/away.
 
+DEBUG = True      # Whether or not to print debug info to console.
+MOVE_SPEED = 35   # Movement speed 0-100%.
+DELAY      = 0.1  # The delay between movements and stuff in seconds.
+RESOLUTION = 128  # Camera resolution (# x # pixels).
+
+# Distances in centimeters:
+DANGER_DIST =  8  # If closer than this, back up.
+TARGET_DIST = 14  # Between DANGER & this, rotate to move alongside/away.
+
+
+# Where images are saved (folders preperation, and filename index number):
+now = datetime.datetime.now()
+dateStr = now.strftime("%Y-%m-%d")
+PATH = os.path.join("trainingImages", dateStr)
+if not os.path.exists(PATH):
+    os.makedirs(PATH)
+PATH = os.path.join(PATH, now.strftime("%H:%M"))
+if not os.path.exists(PATH):
+    os.makedirs(PATH)
+index = 0  # Index for the big while loop (added to filename for easy sorting).
+
+# Initialize camera:
 camera = PiCamera()
-camera.resolution = (res,res)
+camera.resolution = (RESOLUTION, RESOLUTION)
+
 
 try:
     while True:
+
+        index += 1
 
         # Take picture
         rawCapture = PiRGBArray(camera)
 
         # Wait while picture is taken (and stop loop going unreliably fast)
-        time.sleep(delay)
+        time.sleep(DELAY)
 
         # Convert image to Blue Green Red format (that's what OpenCV likes)
         camera.capture(rawCapture, format="bgr")
@@ -57,30 +77,41 @@ try:
         # Look around. "h" refers to a potential hazard (desk edge, wall, etc.)
         hType, distanceToH, rotationToH = head.getHazardDistanceRotation()
 
-        print str(hType.name), distanceToH, rotationToH
+        if DEBUG:
+            print "------------------------"
+            print "Hazard:", str(hType.name)
+            print "Distance:", str(distanceToH) + "cm"
+            print "Rotation:", str(rotationToH) + "°"
 
         # Save image with suitable filename
         img = rawCapture.array
-        imgName = str(hType.name)
+        imgName = str(index) + "-" + str(hType.name)
         imgName += "-d" + str(distanceToH)
         imgName += "-r" + str(rotationToH) + ".png"
-        cv2.imwrite(os.path.join(path, imgName), img)
+        cv2.imwrite(os.path.join(PATH, imgName), img)
 
         # If there's no hazard in view range, or closest hazard is far away:
-        if hType is head.Hazard.none or distanceToH > TARGET_DISTANCE:
-            body.move(moveSpeed)
+        if hType is head.Hazard.none or distanceToH > TARGET_DIST:
+            if DEBUG:
+                targetDistStr = str(TARGET_DIST) + "cm"
+                print "No hazard within target distance of", targetDistStr
+            body.move(MOVE_SPEED)
 
         # If the robot is close-ish to the desk edge:
-        elif DANGER_DISTANCE <= distanceToH <= TARGET_DISTANCE:
-            print "Close-ish to", str(hType)
-            body.turnAwayFrom(moveSpeed, rotationToH)
-            body.move(moveSpeed)
+        elif DANGER_DIST <= distanceToH <= TARGET_DIST:
+            if DEBUG:
+                distStr = str(DANGER_DIST) + " to " + str(TARGET_DIST) + "cm"
+                print "Hazard between target/danger distance (%s)" %(distStr)
+            body.turnAwayFrom(MOVE_SPEED, rotationToH)
+            body.move(MOVE_SPEED)
 
         # If the robot is TOO CLOSE to the desk edge:
-        elif distanceToH < DANGER_DISTANCE:
-            print "Dangerously close to", str(hType) + "!"
-            body.move(moveSpeed, -1)  # Back up a bit
-            body.turnAwayFrom(moveSpeed, rotationToH)
+        elif distanceToH < DANGER_DIST:
+            if DEBUG:
+                dangerStr = " WITHIN DANGER DISTANCE (%scm)" %str(DANGER_DIST)
+                print str(hType.name).upper() + dangerStr
+            body.move(MOVE_SPEED, -1)  # Back up a bit
+            body.turnAwayFrom(MOVE_SPEED, rotationToH)
 
 
 except KeyboardInterrupt:

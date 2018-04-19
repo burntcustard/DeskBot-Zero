@@ -29,6 +29,6 @@
         // We also use spaces in kwargs assignment for readability.
         "--disable=bad-whitespace"
 
-    ]
-
+    ],
+    "python.pythonPath": "/usr/bin/python3"
 }

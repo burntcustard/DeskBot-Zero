@@ -1,11 +1,14 @@
-
 '''
+How to run:
+$ source ~/Documents/tensorflow/bin/activate
+$ cd Documents/DeskBot-Zero/neural-net/keras
+$ python neural-net.py
+
 Heavily based on:
 https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py
 '''
 
 import os
-
 import keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
@@ -14,7 +17,6 @@ from keras.layers import Conv2D, MaxPooling2D
 import deskBotData
 
 batch_size = 100
-num_classes = 0  # Set later with kLoadData
 epochs = 100
 data_augmentation = True
 num_predictions = 20
@@ -26,7 +28,7 @@ model_name = 'keras_deskbot_distance_trained_model.h5'
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
-print(num_classes, 'classes')
+print(num_classes, '(potential) classes')
 
 # Convert class vectors to binary class matrices.
 y_train = keras.utils.to_categorical(y_train, num_classes)
@@ -85,9 +87,9 @@ else:
         featurewise_std_normalization=False,  # divide inputs by std of the dataset
         samplewise_std_normalization=False,  # divide each input by its std
         zca_whitening=False,  # apply ZCA whitening
-        rotation_range=10,  # randomly rotate images in the range (degrees, 0 to 180)
-        width_shift_range=0.1,  # randomly shift images horizontally (fraction of width)
-        height_shift_range=0.1,  # randomly shift images vertically (fraction of height)
+        rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+        width_shift_range=0,  # randomly shift images horizontally (fraction of width)
+        height_shift_range=0,  # randomly shift images vertically (fraction of height)
         horizontal_flip=True,  # randomly flip images
         vertical_flip=False)  # randomly flip images
 

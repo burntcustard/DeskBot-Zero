@@ -2,7 +2,7 @@
 # coding: utf8
 #
 # Moves the pan and tilt module and performs calculations to
-# determine the distance and rotation to the edge of a desk
+# determine the distance and rotation to the edge of a desk.
 
 import sys
 import math
@@ -14,6 +14,9 @@ DEBUG = False
 
 def getDistanceAndRotationToEdge(l, f, r):
     """ Calculate the distance and rotation to the edge of the desk """
+
+    if DEBUG:
+        print "lfr:", l,",",f,",",r
 
     # Maths help from: http://xaktly.com/MathNonRightTrig.html
     # - Specfically the law of cosines, but at least one of their
@@ -53,31 +56,38 @@ def getDistanceAndRotationToEdge(l, f, r):
     #  1 | 0 | l
     #  0 | x | r
 
-    # Distance to right and left are missing or identical?
-    if r is l:
-        if r is None:
-            if DEBUG:
-                print "INFO: Skipping edge calcs because of missing distances."
-            return f, 0
-        else:
-            if DEBUG:
-                print "INFO: Skipping edge calcs because of identical distances."
-            # This is unlikely-ish because l, f, r are floats...
-            #
-            #  r < f       r > f
-            #    ◆  |  or    ◼
-            #  ____➘|      __🠛__
-            #
-            return min(r, f), 0
+    # Distance to right and left are missing?
+    if r is None and l is None:
+        if DEBUG:
+            print "INFO: Skipping edge calcs because of missing distances."
+        return int(round(f)), 0
+
+    # Distance to right and left identical?
+    elif r == l:
+        if DEBUG:
+            print "INFO: Skipping edge calcs because of identical distances."
+        # This is unlikely-ish because l, f, r are floats...
+        #
+        #  r < f       r > f
+        #    ◆  |  or    ◼
+        #  ____➘|      __🠛__
+        #
+        return int(round(min(r, f))), 0
 
     # Figure out if _l_eft or _r_ight is the shorter distance
     else:
-        if r is not None and (l < r):  # Python3 fix?... (l is None or l < r)
-            s = r
-            direction = 1
-        else:
+        if r is None:
             s = l
             direction = -1
+        elif l is None:
+            s = r
+            direction = 1
+        elif l < r:
+            s = l
+            direction = -1
+        elif r < l :
+            s = r
+            direction = 1
 
     cosV = math.cos(math.radians(45))
     sinV = math.sin(math.radians(45))
@@ -100,8 +110,11 @@ def getDistanceAndRotationToEdge(l, f, r):
     print "a =", a
     '''
 
-    if DEBUG:
-        print "Distance to edge:", int(d), "cm"
-        print "Rotation to edge:", int(a), "degrees"
+    distance = int(round(d))
+    rotation = int(round(a))
 
-    return int(d), int(a)
+    if DEBUG:
+        print "Distance to edge:", str(distance) + "cm"
+        print "Rotation to edge:", str(rotation) + "°"
+
+    return distance, rotation

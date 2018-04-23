@@ -92,7 +92,6 @@ def calibrate(speed=1):
 
     # Clever WIP maths stuff
 
-
     #distancesCount = distances.size
     yData = calibrations
     xData = distances

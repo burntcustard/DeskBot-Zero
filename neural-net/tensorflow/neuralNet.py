@@ -1,14 +1,15 @@
+'''
+How to run:
+$ source ~/Documents/tensorflow/bin/activate
+$ cd Documents/DeskBot-Zero/neural-net/tensorflow
+$ python neural-net.py
 
-# How to run:
-# $ source ~/Documents/tensorflow/bin/activate
-# $ cd Documents/DeskBot-Zero/cnn  (currently HAS to be run from here to find the images)
-# $ python neural-net.py
-
-# Resources:
-# Tutorial NN based off:
-# https://www.tensorflow.org/tutorials/layers
-# Understanding NNs:
-# http://cv-tricks.com/tensorflow-tutorial/training-convolutional-neural-network-for-image-classification/
+Resources:
+  Tutorial NN based off:
+  https://www.tensorflow.org/tutorials/layers
+  Understanding NNs:
+  http://cv-tricks.com/tensorflow-tutorial/training-convolutional-neural-network-for-image-classification/
+'''
 
 
 import tensorflow as tf

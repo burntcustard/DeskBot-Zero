@@ -18,7 +18,7 @@ import infrared as ir
 import hcsr04
 import edgeCalc as edgeCalc
 
-DEBUG = True
+DEBUG = False
 DELAY = 0.3      # The delay between movements and stuff in seconds.
 BOT_HEIGHT = 10  # Height of robot's sensor module in cm.
 VIEW_RANGE = 40  # Maximum range that the robot cares about hazards to, in cm.
@@ -41,14 +41,15 @@ def getEdgeAngle():
          ◿
        b   c
     """
-    ANGLE_OFFSET = 8  # How far off the angle measurements are in degrees
+    ANGLE_OFFSET = 8  # How far off the angle measurements are in degrees.
+    THRESHOLD = 220   # How much light must be reflected to 'notice' the desk.
     angle = 0
     while angle < panTilt.TLT_RANGE:
         angle += 1
         panTilt.tilt(int(angle))
         deskDetected = ir.readWithDelay()
         # print "Angle:", angle + ANGLE_OFFSET, ", ir reading:", deskDetected
-        if deskDetected > 200 or angle == panTilt.TLT_RANGE:
+        if deskDetected > THRESHOLD or angle == panTilt.TLT_RANGE:
             # print "-----------------------"
             break  # Break out of looking downwards loop
     panTilt.up() # Look up again
@@ -73,18 +74,17 @@ def getEdgeDistance():
     adjacent * tan(a) = opposite
     '''
 
-    # A multiplier to take into account the larger ir dot
-    # observed when further away from as surface (think torch
+    # An estimated multiplier to take into account the larger ifrared
+    # dot observed when further away from as surface (think torch
     # beam onto a wall getting larger as it gets further away).
-    # TODO: Figure out a better way to do this.
-    PWR = 1.1
+    # TODO: Maybe move into infrared sensor code?
+    PWR = 1.15
 
     edgeDistance = BOT_HEIGHT * math.tan(math.radians(getEdgeAngle()))
-    if edgeDistance > 2:
-        #print "edgeDistance of", edgeDistance
-        edgeDistance **= PWR
-        #print "multiplied to", edgeDistance
-    # print "Distance to edge: ", edgeDistance
+    edgeDistance **= PWR
+
+    if DEBUG:
+        print "Distance to edge: ", int(round(edgeDistance))
 
     return edgeDistance
 
@@ -97,7 +97,8 @@ def getWallDistance():
 
     distance = int(hcsr04.getDistance() - SENS_OFFSET)
 
-    print "ultrasonic distance:", distance
+    if DEBUG:
+        print "Ultrasonic distance:", distance
 
     if distance <= 30:
         return max(0, distance)  # If < 0 return 0

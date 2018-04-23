@@ -63,7 +63,7 @@ def continuousRead():
 def digitalRead():
     """Returns true if the ir output is higher than threshold value."""
     # indicating ~80% reflectivity ~30cm away)
-    return pz.readInput(IR_PIN) > 200
+    return pz.readInput(IR_PIN) > 300
 
 
 def readWithDelay(delayTime = 0.01):

@@ -30,11 +30,13 @@ def parse_img(image_path):
     return image
 
 
-def load_data(train_test_ratio = 0.6, randomised = True):
-    """Loads all images from ../img folder.
+def load_data(train_test_ratio = 0.8, class_range = 8, randomised = True):
+    """Loads all images from ../img folder, split into training and test data.
     Arguments:
-        train_test_ratio -- The amount of data to use as training data [0-1]
-        randomised       -- Is the train/test split random or in filename order
+        train_test_ratio -- The amount of data to use as training data [0-1].
+        class_range      -- Groups data within this range e.g. 4=[0-3][4-7]...
+                            This & max value label determine number of classes.
+        randomised       -- Is train/test split randomly or in filename order?
     Returns:
         Tuple of Numpy arrays and an int:
         `(training_images, training_labels), (testing_images, testing_labels)`.
@@ -48,10 +50,9 @@ def load_data(train_test_ratio = 0.6, randomised = True):
     img_labels = []
     for filename in filenames:
         label = int(filename.split("-d",1)[1].split('-',1)[0])
-        label = label // 4  # Group into [max] / x catagories
-                            # E.g. 4: "distance between 5 and 10cm" = group '1'
-                            # E.g. 20 = 5, 13 = 3, 4 = 0.
+        label = max(0, (label - 1) // (class_range))
         img_labels.append(label)
+
     num_classes = max(img_labels) + 1  # E.g. max label 5 -> 0-5 inclusive
     num_total_samples = len(filenames)
     num_train_samples = int(num_total_samples * train_test_ratio)

@@ -28,7 +28,7 @@ def turn(speed = 40, direction = 0, duration = 0.5):
     debugStr = "Turning"
 
     # If no direction specified, pick left (-1) or right (1) randomly:
-    if not direction:
+    if direction == 0:
         debugStr += " (randomly)"
         direction = random.choice([-1, 1])
 
@@ -58,11 +58,10 @@ def move(speed = 40, direction = 1, duration = 0.5):
 
 def turnAwayFrom(speed = 40, rotation = 0):
     """ Turn robot away from a hazard """
-
-    if rotation   >  9:  # If hazard is >9° to the left:
-        turn(speed,  1)  #  - turn right.
-    elif rotation < -9:  # If hazard is >9° to the right:
-        turn(speed, -1)  #  - turn left.
+    if rotation   >  20:  # If hazard is >20° to the right:
+        turn(speed,  -1)  #  - turn right.
+    elif rotation < -20:  # If hazard is >20° to the left:
+        turn(speed,   1)  #  - turn left.
     else:                # If hazard is in front (ish):
         turn(speed)      #  - turn randomly either left or right.
 

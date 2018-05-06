@@ -5,6 +5,10 @@ These are written to work on any Unix based OS, but the general ideas would also
 First, clone this repository to the main machine (not the Raspberry Pi), then...
 
 
+### Prerequisites
+1. This repository cloned onto the host machine (not the Raspberry Pi).
+2. Python, pip and (optionally) virtualenv on the host machine.
+
 
 ### Headless Raspberry Pi Zero setup
 
@@ -209,24 +213,30 @@ There are two versions of the project's neural network. One with purely TensorFl
 1. Install TensorFlow following the [guide on their website](https://www.tensorflow.org/install/) - including the Nvidia requirements if training on a GPU is desired, it's ~20x faster! The Virtualenv installation with Python3 is recommended as it's what the rest of these instructions will use, but and mechanism would work.
 
 
-2. Copy over images collected from the robot via SFTP (out of their individual data/time folders), or extract the test-dataset.zip, for the file structure:
+2. Install Keras following their [installation instructions](https://keras.io/#installation) or just with the following command:
+   ```
+   $ sudo pip install keras
+   ```
+
+
+3. Copy over images collected from the robot via SFTP (out of their individual data/time folders), or extract the test-dataset.zip, for the file structure:
    ```
    DeskBot-Zero -> neural-net -> img -> .pngs
    ```
   
   
-3. Activate the virtual environment:
+4. Activate the virtual environment:
    ```
    $ source ~/Documents/tensorflow/bin/activate
    ```
    
 
-4. Navigate to the neural-net implementation-specific directory (required for files to be found/saved in correct places):
+5. Navigate to the neural-net implementation-specific directory (required for files to be found/saved in correct places):
    ```
    (tensorflow) $ cd Documents/DeskBot-Zero/neural-net/keras
    ```
 
-5. Run:
+6. Run:
    ```
    (tensorflow) $ python neural-net.py
    ```

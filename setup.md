@@ -1,6 +1,9 @@
-Work in progress instructions for setting up and using the robot via an external PC with a microSD card reader and WiFi.
+Instructions for setting up and using the robot, and training the neural network, via an external PC (host machine) with a microSD card reader and WiFi.
 
-These are written to work on any Unix based OS, but the general ideas would work with a Windows PC.
+These are written to work on any Unix based OS, but the general ideas would also work with Windows or macOS.
+
+First, clone this repository to the main machine (not the Raspberry Pi), then...
+
 
 
 ### Headless Raspberry Pi Zero setup
@@ -21,12 +24,12 @@ These are written to work on any Unix based OS, but the general ideas would work
    $ touch ssh
    ```
 
+
 5. To get the Pi auto-magically connectied to WiFi, create a wpa_supplicant.conf file (I'm using nano).
    ```
    $ nano wpa_supplicant.conf
    ```
    In the file, put the following, edited to the appropriate country and WiFi details:
-    - To allow connections to different networks, simply add more `network={}`s.
    ```
    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
    update_config=1
@@ -38,6 +41,7 @@ These are written to work on any Unix based OS, but the general ideas would work
 	   key_mgmt=WPA-PSK
    }
    ```
+   To allow connections to different networks, simply add more `network={}`s.
 
 
 6. Remove the microSD from the PC, put it in the Pi, then plug the Pi into it's power supply.
@@ -54,7 +58,7 @@ These are written to work on any Unix based OS, but the general ideas would work
    ```
    $ ssh pi@192.168.1.4
    ```
-   The default Raspberry Pi password is "raspberry".
+   The default Raspberry Pi password is "raspberry". It's recommended that you change this with the `passwd` command.
 
 
 9. SFTP into the Pi by entering this into Thunar's address bar (or however with your SFTP client of choice).
@@ -63,13 +67,25 @@ These are written to work on any Unix based OS, but the general ideas would work
    ```
 
 
-### Picon Zero setup - TODO
-For now [the 4tronix instructions here](https://4tronix.co.uk/blog/?p=1224) could be used, but they may require some tweaking.
+
+### Python Code on the Raspberry Pi
+
+1. Follow the instruction on [the 4tronix instructions here](https://4tronix.co.uk/blog/?p=1224) to ensure the Raspberry Pi is setup correctly.
+
+
+2. Download the the 4tronix piconzero library onto the host machine to end up with the folder structure:
+   ```
+   DeskBot-Zero -> lib -> PiconZero -> Python -> .py files
+   ```
+
+
+3. Via SFTP, copy over the lib and src files into a `DeskBot-Zero' (case insensitive) on the Raspberry Pi. These can now be deleted from the host machine, but it's easier to leave them so that if desired they can be edited more comfortably.
  
 
+
 ### Compiling & installing OpenCV on the Raspberry Pi
-This takes a long time! Pre-built packages for the Pi Zero seem rare and/or outdated, but mine could be linked to from here rather than having this full tutorial. TODO: Check for any licensing issues etc.
-Mostly copied from this guide https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-raspberry-pi-zero/
+This takes a long time! Pre-built packages for the Pi Zero seem rare and/or outdated, but mine could be linked to from here rather than having this full tutorial. Mostly copied from this guide https://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-raspberry-pi-zero/
+
 
 1. Install dev tools:
    ```
@@ -171,8 +187,54 @@ Mostly copied from this guide https://www.pyimagesearch.com/2015/12/14/installin
 
     ```   
 The directories opencv-3.0.0 and opencv_contrib-3.0.0 could be removed to save space, but then if something breaks re-compilation might be necessary.
+
+
+
+### Running the dataset collection routine
+
+1. In the SSH connection to the Raspberry Pi in the DeskBot-Zero directory, run:
+   ```
+   $ python /src/Python/dataCollect.py
+   ```
+
+
+2. To stop the robot, press ctrl+c. Images with classification filenames are stored in the `/src/Python/TrainingImages` directory.
+
+
+
+### Setting up and running the neural network training
+
+There are two versions of the project's neural network. One with purely TensorFlow, and one with Keras (which uses TensorFlow). Currently only the Keras implementation is functioning due to image loading issues.
+
+1. Install TensorFlow following the [guide on their website](https://www.tensorflow.org/install/) - including the Nvidia requirements if training on a GPU is desired, it's ~20x faster! The Virtualenv installation with Python3 is recommended as it's what the rest of these instructions will use, but and mechanism would work.
+
+
+2. Copy over images collected from the robot via SFTP (out of their individual data/time folders), or extract the test-dataset.zip, for the file structure:
+   ```
+   DeskBot-Zero -> neural-net -> img -> .pngs
+   ```
+  
+  
+3. Activate the virtual environment:
+   ```
+   $ source ~/Documents/tensorflow/bin/activate
+   ```
    
 
-#### Other TODO:
- - Tips on using Atom to write code on another PC then copy to and run it on the Pi with a single keyboard shortcut... Once I've figured this out myself.
- - Running test code, and when it (or they) are done, the final robot program/s.
+4. Navigate to the neural-net implementation-specific directory (required for files to be found/saved in correct places):
+   ```
+   (tensorflow) $ cd Documents/DeskBot-Zero/neural-net/keras
+   ```
+
+5. Run:
+   ```
+   (tensorflow) $ python neural-net.py
+   ```
+   
+
+### Final notes
+
+If all has gone as planned, after some time setting up and training the neural network, loss and accuracy values should be printed (around 0.6 and 0.7 for the test dataset).
+
+
+If issues are encountered during any stage of the process, feel free to ask me about it on [Twitter](http://twitter.com/burntcustard), via [email](mailto:burntcustard@gmail.com), or by submitting an issue on this repository (or even better a pull request with a fix)!

@@ -6,8 +6,6 @@
 import glob  # Used to generate image filename list
 import tensorflow as tf
 
-num_classes = 0
-
 
 def input_parser(image_path, label):
     """
@@ -27,9 +25,7 @@ def input_parser(image_path, label):
 
 
 def create(training_validation_ratio = 0.6, batch_size = 4):
-    """
-    Creates and returns a: training dataset, validation dataset, number of classification classes.
-    """
+    """Creates and returns a dataset, & number of classification classes."""
 
     # Get image filenames, labels, and the number of classification classes
     filenames = glob.glob("../img/*.png")

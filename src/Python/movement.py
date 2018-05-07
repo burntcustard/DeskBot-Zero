@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # coding: utf8
 #
-# Simplifies moving the robot forwards, backwards, turning
-# in a set direction, or turning randomly left or right
+# Functions for moving the robot forwards, backwards, turning
+# in a specific direction, or turning randomly left or right.
 
 
 import sys
@@ -14,6 +14,8 @@ import piconzero as pz
 
 
 DEBUG = True
+SPEED = 40
+TURN_DURATION = 0.5
 
 
 def init():
@@ -22,7 +24,7 @@ def init():
     print "Initialized motors"
 
 
-def turn(speed = 40, direction = 0, duration = 0.5):
+def turn(speed = SPEED, direction = 0, duration = TURN_DURATION):
     """ Turn the robot at x speed in y direction for z duration in seconds """
 
     debugStr = "Turning"
@@ -43,7 +45,7 @@ def turn(speed = 40, direction = 0, duration = 0.5):
     pz.stop()
 
 
-def move(speed = 40, direction = 1, duration = 0.5):
+def move(speed = SPEED, direction = 1, duration = TURN_DURATION):
     """ Move the robot at x speed in y direction for z duration in seconds """
 
     if DEBUG is True:
@@ -56,7 +58,7 @@ def move(speed = 40, direction = 1, duration = 0.5):
     pz.stop()
 
 
-def turnAwayFrom(speed = 40, rotation = 0):
+def turnAwayFrom(speed = SPEED, rotation = 0):
     """ Turn robot away from a hazard """
     if rotation   >  20:  # If hazard is >20° to the right:
         turn(speed,  -1)  #  - turn right.

@@ -1,6 +1,6 @@
 The hardware for DeskBot *is not* the main focus of the project. But picking robot parts is fun. Everything was chosen with the following in mind:
 * Price - The robot is <£100.
-* Simplicity - It's supposed to be a Computer Science, not a robotics final year project! Plus my electronics A-level was a while ago, and it's nice that other's can recreate DeskBot without vast technical knowledge.
+* Simplicity - It's supposed to be a Computer Science, not a robotics final year project! Plus my electronics A-level was a while ago, and it's nice that others can recreate DeskBot without vast technical knowledge.
 * Low power - Originally the plan was to charge DeskBot with an inductive charger, and it had to have low enough power consumption to be able to keep the main processor (1GHz ARM11 on the Raspberry Pi) running while recharging. To simplify the project, wireless charging was abandoned, but it maintained its low power consumption.
 
 

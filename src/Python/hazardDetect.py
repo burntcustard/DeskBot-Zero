@@ -34,13 +34,13 @@ class Hazard(Enum):
 
 
 def getEdgeAngle():
-    """
-    Slowly look down while checking for edge of desk
+    """ Slowly look down while checking for edge of desk """
+    '''
     returns angle a
           a
          ◿
        b   c
-    """
+    '''
     ANGLE_OFFSET = 8  # How far off the angle measurements are in degrees.
     THRESHOLD = 220   # How much light must be reflected to 'notice' the desk.
     angle = 0
@@ -57,11 +57,8 @@ def getEdgeAngle():
 
 
 def getEdgeDistance():
-    """
-    Returns the distance to a detected edge in cm
-    """
+    """ Returns the distance to a detected edge in cm """
     '''
-
           a
          ◿
        b   c
@@ -74,14 +71,15 @@ def getEdgeDistance():
     adjacent * tan(a) = opposite
     '''
 
-    # An estimated multiplier to take into account the larger ifrared
-    # dot observed when further away from as surface (think torch
-    # beam onto a wall getting larger as it gets further away).
+    # An estimated multiplier to take into account the larger infrared dot
+    # observed when further away from as surface - think torch beam onto a
+    # wall getting larger as it gets further away, but only the radius
+    # (center downwards) being relevant.
     # TODO: Maybe move into infrared sensor code?
-    PWR = 1.15
+    MULTI = 1.2
 
     edgeDistance = BOT_HEIGHT * math.tan(math.radians(getEdgeAngle()))
-    edgeDistance **= PWR
+    edgeDistance *= MULTI
 
     if DEBUG:
         print "Distance to edge: ", int(round(edgeDistance))

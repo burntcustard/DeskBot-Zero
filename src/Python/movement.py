@@ -64,8 +64,8 @@ def turnAwayFrom(speed = SPEED, rotation = 0):
         turn(speed,  -1)  #  - turn right.
     elif rotation < -20:  # If hazard is >20° to the left:
         turn(speed,   1)  #  - turn left.
-    else:                # If hazard is in front (ish):
-        turn(speed)      #  - turn randomly either left or right.
+    else:                 # If hazard is in front (ish):
+        turn(speed)       #  - turn randomly either left or right.
 
 
 def cleanup():

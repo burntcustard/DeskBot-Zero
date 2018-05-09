@@ -2,7 +2,7 @@
 How to run:
 $ source ~/Documents/tensorflow/bin/activate
 $ cd Documents/DeskBot-Zero/neural-net/keras
-$ python neural-net.py
+$ python neuralNet.py
 
 Heavily based on:
 https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py

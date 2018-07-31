@@ -20,7 +20,7 @@ First, clone this repository to the main machine (not the Raspberry Pi), then...
 
 3. Figure out where it's mounted (with a file manager, or the command df -h), and change directory to the boot folder in it.
    ```
-   $ cd /run/media/{your-username}/{ad6203a1-ec50-4f44-a1c0-e6c3dd4c9202-or-something}/boot
+   $ cd /media/{your-username}/{ad6203a1-ec50-4f44-a1c0-e6c3dd4c9202-or-something}/boot
    ```
 
 4. Create a new empty file called "ssh", to allow us to connect via SSH to the Pi later. Note that there is no file extension.
